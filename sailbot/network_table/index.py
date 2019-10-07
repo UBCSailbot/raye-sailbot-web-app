@@ -1,9 +1,10 @@
 import zmq
 import google.protobuf
-from .generated import Reply_pb2
-from .generated import SubscribeReply_pb2
-from .generated import Request_pb2
-from .generated import SubscribeRequest_pb2
+from sailbot.network_table.generated.Reply_pb2 import Reply
+from sailbot.network_table.generated.SubscribeReply_pb2 import SubscribeReply
+from sailbot.network_table.generated.Request_pb2 import Request
+from sailbot.network_table.generated.SubscribeRequest_pb2 import SubscribeRequest
+from google.protobuf.json_format import MessageToJson
 from sailbot.repository import sensorRepository
 
 context = zmq.Context()
@@ -13,23 +14,26 @@ def subscribe():
     init_sock = context.socket(zmq.REQ)
     init_sock.connect('ipc:///tmp/sailbot/NetworkTable')
 
-    init_socket.send("connect")
+    init_sock.send_string('connect')
 
-    filepath = init_socket.recv()
-    socket.connect(filepath)
+    # remove null terminator at end of string
+    filepath = init_sock.recv_string()[:-1]
+    socket.connect('ipc://' + filepath)
 
-    subscribe_request = SubscribedRequest()
-    subscribe_request.setUri('/')
 
-    request = Reply_pb2.Request()
-    request.type = Reply_pb2.Reply.TYPE.SUBSCRIBE
+    request = Request()
+    request.type = Request.Type.SUBSCRIBE
+    request.subscribe_request.uri = '/'
     serialized_request = request.SerializeToString()
     socket.send(serialized_request)
 
+
     while True:
-        replyProto = Reply_pb2.Reply()
-        encoded_reply = socket.recv()
-        replyProto.decode(encoded_reply)
-        if replyProto["type"] == Reply_pb2.Reply.Type.SUBSCRIBE:
-            data = replyProto
+        reply = Reply()
+        serialized_reply = socket.recv()
+        reply.ParseFromString(serialized_reply)
+
+        # Ignore ACK replies
+        if reply.type == Reply.Type.SUBSCRIBE:
+            json_data = MessageToJson(reply.subscribe_reply.node)
             # save to database

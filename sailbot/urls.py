@@ -1,13 +1,13 @@
-from django.urls import path
+from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    path('', views.home, name='sailbot-home'),
-    path('wind/', views.wind, name='sailbot-wind'),
-    path('winchmotor/', views.winchmotor, name='sailbot-winchmotor'),
-    path('ruddermotor/', views.ruddermotor, name='sailbot-ruddermotor'),
-    path('gps/', views.gps, name='sailbot-gps'),
-    path('boomangle/', views.boomangle, name='sailbot-boomangle'),
-    path('bms/', views.bms, name='sailbot-bms'),
-    path('accelerometer/', views.accelerometer, name='sailbot-accelerometer'),
+    url('', views.home, name='sailbot-home'),
+    url('wind/', views.wind, name='sailbot-wind'),
+    url('winchmotor/', views.winchmotor, name='sailbot-winchmotor'),
+    url('ruddermotor/', views.ruddermotor, name='sailbot-ruddermotor'),
+    url('gps/', views.gps, name='sailbot-gps'),
+    url('boomangle/', views.boomangle, name='sailbot-boomangle'),
+    url('bms/', views.bms, name='sailbot-bms'),
+    url('accelerometer/', views.accelerometer, name='sailbot-accelerometer'),
 ]

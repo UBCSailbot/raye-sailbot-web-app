@@ -5,6 +5,6 @@ class SailbotConfig(AppConfig):
     verbose_name = "My Application"
     def ready(self):
         from threading import Thread
-        from .network_table import index
-        thread = Thread(target=index.subscribe)
+        import sailbot.network_table.index
+        thread = Thread(target=sailbot.network_table.index.subscribe)
         thread.start()
