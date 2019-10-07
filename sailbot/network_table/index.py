@@ -1,5 +1,6 @@
 import zmq
 import google.protobuf
+from multiprocessing import Process
 from .generated import Reply_pb2
 from .generated import SubscribeReply_pb2
 from .generated import Request_pb2
@@ -26,6 +27,10 @@ def subscribe():
     serialized_request = request.SerializeToString()
     socket.send(serialized_request)
 
+    process = Process(target=create_process)
+    process.start()
+    
+def create_process():
     while True:
         replyProto = Reply_pb2.Reply()
         encoded_reply = socket.recv()
