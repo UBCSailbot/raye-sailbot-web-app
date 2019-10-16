@@ -27,7 +27,8 @@ Inside the project folder:
 In django_sailbot/settings.py:
 - Currently default to using sqlite3 for debugging.
 - MySql database connection commented out.
-- DATABASES = {
+```  
+  DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': ‘dbname’,
@@ -37,3 +38,4 @@ In django_sailbot/settings.py:
         'PORT': '3306',
     }
 }
+```
