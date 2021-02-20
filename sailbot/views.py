@@ -19,49 +19,49 @@ def home(request):
     }
     return render(request, 'sailbot/home.html',context)
 
-def winchmotor (request):
+def winchmotor(request):
     context={
         'Model': sensorRepository.get_all_winch(),
         'Navbar': nav.get_navbar('sensor')
     }
     return render(request, 'sailbot/sensor.html', context)
 
-def accelerometer (request):
+def accelerometer(request):
     context={
         'Model': sensorRepository.get_all_accelerometer(),
         'Navbar': nav.get_navbar('sensor')
     }
     return render(request, 'sailbot/sensor.html', context)
 
-def bms (request):
+def bms(request):
     context={
         'Model': sensorRepository.get_all_bms(),
         'Navbar': nav.get_navbar('sensor')
     }
     return render(request, 'sailbot/sensor.html', context)
 
-def boomangle (request):
+def boomangle(request):
     context={
         'Model': sensorRepository.get_all_boomangle(),
         'Navbar': nav.get_navbar('sensor')
     }
     return render(request, 'sailbot/sensor.html', context)
 
-def gps (request):
+def gps(request):
     context={
         'Model': sensorRepository.get_all_gps(),
         'Navbar': nav.get_navbar('sensor')
     }
     return render(request, 'sailbot/sensor.html', context)
 
-def ruddermotor (request):
+def ruddermotor(request):
     context={
         'Model': sensorRepository.get_all_rudder(),
         'Navbar': nav.get_navbar('sensor')
     }
     return render(request, 'sailbot/sensor.html', context)
 
-def wind (request):
+def wind(request):
     context={
         'Model': sensorRepository.get_all_wind(),
         'Navbar': nav.get_navbar('sensor')
