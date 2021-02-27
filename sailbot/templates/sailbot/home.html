@@ -6,56 +6,22 @@
 
 {% include "sailbot/navbar_component.html" with navbar=Navbar only %}
 
-<div class="jumbotron text-center">
-  <h1>{{ PageName }}</h1>
-  <p>We specialize in autonomous sail boats</p>
-</div>
-
-<div id="about" class="container-fluid">
-    <div class="row">
-        <div class="col-sm-8">
-            <h2>About UBC Sailbot</h2><br>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip
-                ex ea commodo consequat. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi
-                ut aliquip ex ea commodo consequat.</p>
-        </div>
-    </div>
-</div>
-
-<div class="container-fluid bg-grey">
-    <div class="row">
-        <div class="col-sm-4">
-        </div>
-        <div class="col-sm-8">
-                Our mission lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                ullamco laboris nisi ut aliquip ex ea commodo consequat.
-        </div>
-    </div>
-</div>
-
 <div id="sensors" class="container-fluid">
     <h2>SENSORS</h2>
     {% for model in Models %}
-      {% include "sailbot/sensor_component.html" with model=model only %}
+        {% include "sailbot/sensor_component.html" with model=model only %}
     {% endfor %}
 </div>
 
+<!--
 <div id="waypoint" class="container-fluid text-center bg-grey">
   {% include "sailbot/map_component.html" %}
 </div>
-
-<div id="contact" class="container-fluid">
-  {% include "sailbot/contact_component.html" %}
-</div>
-
 <footer class="container-fluid text-center">
     <a href="#myPage" title="To Top">
         <span class="glyphicon glyphicon-chevron-up"></span>
     </a>
-</footer>
+</footer
+-->
 
 {% endblock content %}

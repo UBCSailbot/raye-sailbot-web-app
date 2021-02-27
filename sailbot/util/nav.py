@@ -1,19 +1,11 @@
 navHome  = [
     {
-        'name': 'ABOUT',
-        'url': '#about',
-    },
-    {
         'name': 'SENSORS',
         'url': '#sensors',
     },
     {
         'name': 'WAYPOINT',
         'url': '#waypoint',
-    },
-    {
-        'name': 'CONTACT',
-        'url': '#contact',
     },
 ]
 
