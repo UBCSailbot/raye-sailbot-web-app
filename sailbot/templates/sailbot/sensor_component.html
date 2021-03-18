@@ -1,15 +1,13 @@
 <div class="table-responsive">
     <h2><a href="{% url model.Name %}">{{ model.SensorName }}</a></h2>
     <table class="table">
-        <!-- the actual table with the names -->
         <thead>
           <tr>
               {% for d in model.Attributes %}
               <th>{{d}}</th>
               {% endfor %}
           </tr>
-        </thead>
-        <!-- will have to figure out what this does. My speculation is that it contains the data. -->
+        </thead> 
         <tbody>
           {% for sensor in model.Sensors %}
           <tr>

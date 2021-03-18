@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'sailbot.apps.SailbotConfig',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_pdb',
+    'sailbot.apps.SailbotConfig',
 ]
 
 MIDDLEWARE = [
@@ -69,7 +70,25 @@ TEMPLATES = [
     },
 ]
 
+# REGULAR DJANGO CHANNEL LAYER
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+     }
+}
+
 WSGI_APPLICATION = 'django_sailbot.wsgi.application'
+ASGI_APPLICATION = 'django_sailbot.routing.application'
+
+# USING REDIS
+#CHANNEL_LAYERS = {
+#    'default': {
+#        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#        'CONFIG': {
+#            "hosts": [('127.0.0.1', 6379)],
+#        },
+#    },
+#}
 
 
 # Database
