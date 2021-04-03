@@ -1,14 +1,28 @@
-let socket = new WebSocket('ws://localhost:8000/ws/networkTableData/');
+var socket = new WebSocket('ws://localhost:8000/ws/networkTableData/');
 socket.onopen = function(e) {
-    alert('Connection established');
+    console.log('Connection established');
 };
 
 socket.onmessage = function(e) {
-    let sensorData = JSON.parse(e.data);
-    let data = document.getElementById("Wind").getElementsByTagName("TD");
-    data[1].innerHTML = sensorData.data;
+    console.log("test");
+    let sensor_data = JSON.parse(e.data);
+    if(sensor_data.sensor_type == '/wind_sensor_0') {
+        let wind_0_html = document.getElementById("Wind").getElementsByTagName("TD");
+        wind_0_html[1].innerHTML = sensor_data.speed;
+        wind_0_html[2].innerHTML = sensor_data.direction;
+        wind_0_html[3].innerHTML = sensor_data.reference;
+        wind_0_html[4].innerHTML = sensor_data.windtemp;
+        wind_0_html[5].innerHTML = sensor_data.current;
+        wind_0_html[6].innerHTML = sensor_data.voltage;
+        wind_0_html[7].innerHTML = sensor_data.temperature;
+        wind_0_html[8].innerHTML = sensor_data.status;
+    }
 };
 
 socket.onclose = function(e) {
-    alert('Connection closed');
+    console.log('Connection closed');
+};
+
+socket.onerror = function(error) {
+    alert( `[error] ${error.message}`);
 };
