@@ -13,24 +13,8 @@
     <link rel="stylesheet" type="text/css" href="{% static 'sailbot/style/base.css' %}">
     <script src='https://api.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet'/>
+    <script src="{% static 'sailbot/javascript/get_network_table_data.js' %}?version=1"></script>
   </head>
-   
-  <script>
-    let socket = new WebSocket('ws://localhost:8000/ws/networkTableData/');
-    socket.onopen = function(e) {
-        alert('Connection established');
-    };
-
-    socket.onmessage = function(e) {
-        console.log(e.data);
-        var sensorData = JSON.parse(e.data);
-    };
-
-    socket.onclose = function(e) {
-        alert('Connection closed');
-    };
-  </script>
-
   <body id="myPage" data-spy="scroll" data-target=".navbar" data-offset="60">>
     {% block content %}{% endblock %}
   </body>

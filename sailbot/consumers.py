@@ -22,8 +22,7 @@ class NetworkTableData(AsyncWebsocketConsumer):
             self.group_name,
             {
                 'type':'sendSensorData',
-                'value':text_data,
-
+                'value':text_data
             }
         )
 

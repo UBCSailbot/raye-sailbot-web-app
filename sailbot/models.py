@@ -69,13 +69,13 @@ class WinchMotor(models.Model):
 class Wind(models.Model):
     SensorID = models.IntegerField(primary_key=True)
     WindSpeed = models.FloatField()
-    WindDirection = models.CharField(max_length=100)
-    WindReference = models.BooleanField()
+    WindDirection = models.FloatField()
+    WindReference = models.IntegerField()
     WindTemperature = models.FloatField()
     Current = models.IntegerField()
     Voltage = models.IntegerField()
     Temperature = models.IntegerField()
-    Status = models.BooleanField()
+    Status = models.CharField(max_length=100)
     UpdatedTime = models.DateTimeField(default=timezone.now)
 
 class ModifiableColumn(models.Model):
