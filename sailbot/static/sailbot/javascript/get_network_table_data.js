@@ -1,9 +1,6 @@
-
-
-
 var socket = new WebSocket('ws://localhost:8000/ws/networkTableData/');
 socket.onopen = function(e) {
-    console.log('Connection established');
+    console.log('Sensor connection established');
 };
 
 socket.onmessage = function(e) {
@@ -154,8 +151,8 @@ socket.onmessage = function(e) {
             accelerometer_html[5].innerHTML = sensor_data.voltage;
             accelerometer_html[6].innerHTML = sensor_data.temperature;
             accelerometer_html[7].innerHTML = sensor_data.status;
-        default:
             break;
+        default:
     }
 };
 

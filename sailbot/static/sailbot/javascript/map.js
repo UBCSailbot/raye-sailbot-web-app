@@ -1,5 +1,5 @@
-let map;
-let mark;
+var map;
+var mark;
 function initMap() {
     let lat = 49.26;
     let lng = -123.24;
@@ -9,10 +9,26 @@ function initMap() {
     });
     mark = new google.maps.Marker({position:{lat:lat, lng:lng}, map:map});
 }
-/*
-var redraw = function(payload) {
-  lat = payload.message.lat;
-  lng = payload.message.lng;
-  map.setCenter({lat:lat, lng:lng, alt:0});
-  mark.setPosition({lat:lat, lng:lng, alt:0});
-};*/
+
+var socket = new WebSocket('ws://localhost:8000/ws/networkTableData/');
+socket.onopen = function(e) {
+    console.log('Waypoints connection established');
+};
+
+socket.onmessage = function(e) {
+    let waypoint_data = JSON.parse(e.data);
+    if(waypoint_data.sensor_type.localeCompare('waypoints') == 0) {
+        map.setCenter({lat: waypoint_data.latitude, lng: waypoint_data.longitude});
+        mark.setPosition({lat: waypoint_data.latitude, lng: waypoint_data.longitude});
+    }
+};
+
+socket.onclose = function(e) {
+    console.log('Connection closed');
+};
+
+socket.onerror = function(error) {
+    alert( `[error] ${error.message}`);
+};
+
+
