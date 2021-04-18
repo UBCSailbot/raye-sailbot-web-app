@@ -1,5 +1,10 @@
 {% load static %}
-
 <script type="text/javascript" src="{% static 'sailbot/javascript/map.js' %}"></script>
+<div id='map' style='width: 100%; height: 400px;'></div>
 
-<div id='map' style='width: 1600px; height: 600px; left: 5%;  right: 5%;'></div>
+<!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDNVaNikKOXIojeo_BmBLvCJR4R73eKSig&callback=initMap"
+  async
+></script>
+
