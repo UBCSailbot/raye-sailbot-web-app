@@ -4,13 +4,14 @@ import Tab from '@mui/material/Tab';
 
 type NavBarProps = {
     tabs: Array<string>,
+    currentTab: string,
     handleChange: Function,
     tabStyle: {},
     tabsStyle: {}
 }
 
-export const NavBar: React.FC<NavBarProps> = ({tabs, handleChange, tabStyle, tabsStyle}) => {
-    const [value, setValue] = React.useState(0);
+export const NavBar: React.FC<NavBarProps> = ({tabs, currentTab, handleChange, tabStyle, tabsStyle}) => {
+    const [value, setValue] = React.useState(tabs.findIndex((tab) => {return tab === currentTab}));
 
     return (
         <Tabs
@@ -19,7 +20,7 @@ export const NavBar: React.FC<NavBarProps> = ({tabs, handleChange, tabStyle, tab
                 handleChange(tabs[index]);
                 setValue(index)
             }}
-            TabIndicatorProps={{style: {background: 'grey'}}}
+            TabIndicatorProps={{style: {background: 'white', height: "3.5px"}}}
             style={tabsStyle}
         >
             {tabs.map( tabName => <Tab style={tabStyle} label={tabName} key={tabName} />)}

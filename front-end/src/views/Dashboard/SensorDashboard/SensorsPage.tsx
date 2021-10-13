@@ -2,18 +2,17 @@ import * as React from 'react';
 import { DataTable, Table, TableHeader } from '../../../components/layout/data-visualization/DataTable/DataTable';
 import { NavBar } from '../../../components/layout/navigation/NavBar/NavBar';
 import {IMessageEvent, w3cwebsocket as W3CWebSocket} from "websocket";
-// import AppBar from '@mui/material/AppBar';
-// import Box from '@mui/material/Box';
-// import Toolbar from '@mui/material/Toolbar';
-// import Typography from '@mui/material/Typography';
+import axios from 'axios';
 
 
 interface IProps {
+    SERVER_NAME: string,
+    WEBSOCKET_SERVER_NAME: string
 }
 
 interface IState {
     selectedTab: string,
-    dataTable: {
+    sensorDataTable: {
         [sensorType: string]: {
             headers: TableHeader,
             table: Table
@@ -27,152 +26,128 @@ export default class Sensors extends React.Component<IProps, IState> {
     constructor(props: IProps) {
         super(props);
 
-        this.state = {
+        let initialState = {
             selectedTab: "wind",
-            dataTable: {
-                wind: {
-                    headers: [
-                        'SensorID', 
-                        'Speed', 
-                        'Direction', 
-                        'Reference', 
-                        'Wind Temperature', 
-                        'Current', 
-                        'Voltage', 
-                        'Temperature', 
-                        'Status'
-                    ],
-                    table: [
-                        [0, 20, 'east', 'N/A', 20, 1, 12, 24, 'ON'],
-                        [1, 20, 'east', 'N/A', 20, 1, 12, 24, 'ON']
-                    ]
-                },
-                winch: {
-                    headers: [
-                        'SensorID', 
-                        'Current', 
-                        'Voltage', 
-                        'Temperature', 
-                        'Status'
-                    ],
-                    table: [
-                        [0, 20, 24, 50, 'ON'],
-                        [0, 20, 24, 50, 'ON']
-                    ]
-                },
-                boom_angle: {
-                    headers: [
-                        'SensorID', 
-                        'Angle', 
-                        'Current', 
-                        'Voltage', 
-                        'Temperature', 
-                        'Status'
-                    ],
-                    table: [
-                        [0, 60, 24, 50, 25, 'ON'],
-                        [0, 60, 24, 50, 25, 'ON']
-                    ]
-                },
-                rudder_motor: {
-                    headers: [
-                        'SensorID', 
-                        'Current', 
-                        'Voltage', 
-                        'Temperature', 
-                        'Status'
-                    ],
-                    table: [
-                        [0, 60, 24, 50, 'ON'],
-                        [0, 60, 24, 50, 'ON']
-                    ]
-                },
-                accelerometer: {
-                    headers: [
-                        'SensorID', 
-                        'X-Position', 
-                        'Y-Position', 
-                        'Z-Position', 
-                        'Current', 
-                        'Voltage', 
-                        'Temperature', 
-                        'Status'
-                    ],
-                    table: [
-                        [0, 1.2, 2.5, 1.4, 24, 50, 1, 'ON'],
-                        [0, 1.2, 2.5, 1.4, 24, 50, 1, 'ON']
-                    ]
-                },
-                bms: {
-                    headers: [
-                        'SensorID', 
-                        'Battery Current', 
-                        'Battery Voltage', 
-                        'Battery Temperature', 
-                        'Current', 
-                        'Voltage', 
-                        'Temperature', 
-                        'Status'
-                    ],
-                    table: [
-                        [0, 2.2, 3.5, 5.4, 24, 50, 11, 'ON'],
-                        [0, 2.2, 3.5, 5.4, 24, 50, 11, 'ON']
-                    ]
-                }
-            }
-        };
+            sensorDataTable: {}
+        }
 
-        this.ws = new W3CWebSocket('ws://127.0.0.1:8888/');
+        // @ts-ignore
+        this.state = (window.localStorage.getItem('state')) ? JSON.parse(window.localStorage.getItem('state')) : initialState;
+
+        this.ws = new W3CWebSocket(this.props.WEBSOCKET_SERVER_NAME);
     }
 
-    componentWillMount() {
+    async componentWillMount() {
+
+        // Load in the all the model schemas from the backend if it's not stored locally. 
+        if(!window.localStorage.getItem('state')) {
+            await axios.get(this.props.SERVER_NAME + "/api/models")
+                .then((res) => {
+                    const allModels: any = res.data;
+                    for (const model in allModels) {
+                        this.setState({
+                            ...this.state,
+                            sensorDataTable: {
+                                ...this.state.sensorDataTable,
+                                [model]: {
+                                    // headers: Object.keys(allModels[model]["properties"]).map((key) => {
+                                    //     return (key.split("_").map(word => {return word.charAt(0).toUpperCase() + word.slice(1)})).join(' ');
+                                    // }),
+                                    headers: Object.keys(allModels[model]["properties"]),
+                                    table: {}
+                                }
+                            }
+                        });
+                    } 
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+
+        // Open the websocket 
         this.ws.onopen = () => {
             console.log('Client websocket opened');
         };
+        // Handle message when data is sent to the websocket 
         this.ws.onmessage = (event: IMessageEvent) => {
             const sensorData = JSON.parse(event.data.toString());
+
+            if(!sensorData["sensor_id"] || !sensorData["sensor_type"]) {
+                console.log("ERROR: the data requested from the websocket does not have an explicit sensor_id or sensor_type field");
+                return; 
+            }
+
+            // If a specific time stamp was not sent, then set it automatically to the UTC time of when this data was received. 
+            if (!("time_stamp" in sensorData)) {
+                sensorData["time_stamp"] = new Date().toUTCString().slice(0, -3);
+            }
+
+            // Send the data to the database 
+            // axios.post(this.props.SERVER_NAME + `/api/sensors/${sensorData["sensor_type"]}`, JSON.stringify(sensorData))
+            //   .then((response) => {
+            //     console.log(response);
+            //   })
+            //   .catch((error) => {
+            //     console.log(error);
+            //   });
 
             const {
                 headers,
                 table
-            } = this.state.dataTable[sensorData.sensor_type];
+            } = this.state.sensorDataTable[sensorData["sensor_type"]];
 
-            let newCopyTableData = table; 
+            let newTableData = table; 
             let newRow = [];
-            for(let header of headers) {
-                newRow.push(sensorData.data[header])
-            }
-            newCopyTableData[sensorData.data["SensorID"]] = newRow;
 
-            this.setState(prevState => ({
-                dataTable: {
-                    ...prevState.dataTable,
-                    [sensorData.sensor_type]: {
-                        ...prevState.dataTable[sensorData.sensor_type],
-                        table: newCopyTableData
+            for(let header of headers) {
+                if (!(header in sensorData)) {
+                    console.log(`ERROR: data field ${header} does not exist in the sensor data sent in from the websocket. Ensure that the model schemas are consistent with the Network Table Listener`);
+                } else {
+                    newRow.push(sensorData[header])
+                }
+            }
+            
+            newTableData[sensorData["sensor_id"]] = newRow;
+            this.setState((prevState) => ({
+                sensorDataTable: {
+                    ...prevState.sensorDataTable,
+                    [sensorData["sensor_type"]]: {
+                        ...prevState.sensorDataTable[sensorData["sensor_type"]],
+                        table: newTableData
                     }
                 }
             }));
-        };
+        }
+    };
+
+    componentDidUpdate() {
+        const {
+            sensorDataTable,
+            selectedTab
+        } = this.state;
+
+        window.localStorage.setItem('state', JSON.stringify({selectedTab: selectedTab, sensorDataTable: sensorDataTable}));
     }
 
     render() {
         const {
-            dataTable,
+            sensorDataTable,
             selectedTab
         } = this.state;
 
         return(
             <div>
                 <NavBar 
-                    tabs={['wind', 'winch', 'boom angle', 'rudder motor', 'accelerometer', 'bms']} 
+                    tabs={Object.keys(sensorDataTable).map((key) => {return key.replace("_", " ")})} 
+                    currentTab={selectedTab.replace("_", " ")}
                     handleChange={(tab: string) => this.setState({selectedTab: tab.replace(" ", "_")})}
                     tabStyle={{color: 'white', fontSize: '12px', fontWeight: 'bold', maxHeight: '15px'}}
                     tabsStyle={{
                         backgroundColor: '#44A7C4',
                     }}
                 />
-                <DataTable rowHeaders={dataTable[selectedTab].headers} dataTable={dataTable[selectedTab].table}/>
+                <DataTable rowHeaders={sensorDataTable[selectedTab]?.headers || []} dataTable={sensorDataTable[selectedTab]?.table || []}/>
             </div>
         )
     }

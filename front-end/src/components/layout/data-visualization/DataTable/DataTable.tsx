@@ -6,7 +6,9 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
-export type Table = Array<Array<string | number>>;
+export type Table = {
+    [ID: string]: Array<string | number>
+};
 
 export type TableHeader = Array<string>;
 
@@ -27,9 +29,9 @@ interface DataTableProps {
  */
 export const DataTable: React.FC<DataTableProps> = ({rowHeaders, dataTable}) => {
     const bodyData = [];
-    for(let i = 0; i < dataTable.length; i++) {
+    for(let id in dataTable) {
         let rowData: Array<any> = [];
-        dataTable[i].forEach( (data: string | number, index: number) => {
+        dataTable[id].forEach( (data: string | number, index: number) => {
             rowData.push(
                 <TableCell key={index}>
                     {data}
@@ -37,7 +39,7 @@ export const DataTable: React.FC<DataTableProps> = ({rowHeaders, dataTable}) => 
             );
         })
         bodyData.push(
-            <TableRow> 
+            <TableRow key={id}> 
                 {rowData}
             </TableRow>
         ); 
