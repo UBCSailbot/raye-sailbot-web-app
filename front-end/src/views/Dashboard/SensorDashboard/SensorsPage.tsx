@@ -83,15 +83,6 @@ export default class Sensors extends React.Component<IProps, IState> {
                 sensorData["time_stamp"] = new Date().toUTCString().slice(0, -3);
             }
 
-            // Send the data to the database 
-            // axios.post(this.props.SERVER_NAME + `/api/sensors/${sensorData["sensor_type"]}`, JSON.stringify(sensorData))
-            //   .then((response) => {
-            //     console.log(response);
-            //   })
-            //   .catch((error) => {
-            //     console.log(error);
-            //   });
-
             const {
                 headers,
                 table

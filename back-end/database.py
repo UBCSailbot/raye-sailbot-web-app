@@ -1,5 +1,5 @@
 from model import (
-    WindSensor, 
+    Wind, 
     WinchMotor, 
     Accelerometer, 
     AIS, 
@@ -18,32 +18,50 @@ client = motor.motor_asyncio.AsyncIOMotorClient("mongodb+srv://ubcsailbot:raye20
 database = client.SensorData 
 # Same thing as a table in SQL
 
-databaseDictionary = {
-    "collections": {
-        "wind": database.wind,
-        "accelerometer": database.accelerometer,
-        "ais": database.ais,
-        "winch_motor": database.winchmotor,
-        "gps": database.gps,
-        "bms": database.bms,
-        "gyroscope": database.gyroscope,
-        "rudder_motor": database.ruddermotor,
-        "sailencoder": database.sailencoder,
-        "waypoint": database.waypoint,
-        "winch_motor": database.winchmotor
+sensorDatabaseDictionary = {
+    "wind": {
+        "collection": database.wind,
+        "model": Wind
     },
-    "models": {
-        "wind": WindSensor,
-        "accelerometer": Accelerometer,
-        "ais": AIS,
-        "winch_motor": WinchMotor,
-        "gps": GPS,
-        "bms": BMS,
-        "gyroscope": Gyroscope,
-        "rudder_motor": RudderMotor,
-        "sailencoder": Sailencoder,
-        "waypoint": Waypoint,
-        "winch_motor": WinchMotor
+    "accelerometer": {
+        "collection": database.accelerometer,
+        "model": Accelerometer
+    },
+    "ais": {
+        "collection": database.ais,
+        "model": AIS
+    },
+    "winch_motor": {
+        "collection": database.winchmotor,
+        "model": WinchMotor
+    },
+    "gps": {
+        "collection": database.gps,
+        "model": GPS
+    },
+    "bms": {
+        "collection": database.bms,
+        "model": BMS
+    },
+    "gyroscope": {
+        "collection": database.gyroscope,
+        "model": Gyroscope
+    },
+    "rudder_motor": {
+        "collection": database.ruddermotor,
+        "model": RudderMotor
+    },
+    "sailencoder": {
+        "collection": database.sailencoder,
+        "model": Sailencoder
+    },
+    "waypoint": {
+        "collection": database.waypoint,
+        "model": Waypoint
+    },
+    "winch_motor": {
+        "collection": database.winchmotor,
+        "model": WinchMotor
     }
 }
 
@@ -65,9 +83,9 @@ async def fetch_sensor_data(sensor_type, sensor_uri = None):
     if(sensor_uri is not None): 
         query = { "sensor_id": sensor_uri }
 
-    sensor_data = databaseDictionary["collections"][sensor_type].find(query)
+    sensor_data = sensorDatabaseDictionary[sensor_type]["collection"].find(query)
     async for document in sensor_data:
-        queried_data.append(databaseDictionary["models"][sensor_type](**document))
+        queried_data.append(sensorDatabaseDictionary[sensor_type]["model"](**document))
 
     return queried_data
     
@@ -84,5 +102,5 @@ async def add_sensor_data(sensor_type, sensor_data):
     sensor_data (json): the data containing the sensor data information.
     """
     document = sensor_data 
-    result = await databaseDictionary["collections"][sensor_type].insert_one(document)
+    result = await sensorDatabaseDictionary[sensor_type]["collection"].insert_one(document)
     return result
