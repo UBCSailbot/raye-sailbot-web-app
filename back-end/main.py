@@ -51,9 +51,9 @@ async def get_all_model_schemas():
 # The retrieve the data from the database
 
 @app.get("/api/sensors/{sensor_type}")
-async def get_sensor_data(sensor_type: str, sensor_uri: Optional[str] = None, time_stamp: Optional[int] = None):
+async def get_sensor_data(sensor_type: str, properities: Optional[object]):
     # TODO: Add the time stamp property to filter data based on a certain time frame. 
-    response = await fetch_sensor_data(sensor_type, sensor_uri=sensor_uri)
+    response = await fetch_sensor_data(sensor_type, properities)
     if response:
         return response
     raise HTTPException(404, f"There is no sensor data with this type {sensor_type}")

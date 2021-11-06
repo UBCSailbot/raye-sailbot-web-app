@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from model import (
     Wind, 
     WinchMotor, 
@@ -67,21 +68,27 @@ sensorDatabaseDictionary = {
 
 # TODO: have sensor_uri be replaced by an argument "properties" which is a dictionary that contains 
 #       specific properties that you want to query from the database (e.g. time frame, uri, etc)
-async def fetch_sensor_data(sensor_type, sensor_uri = None):
+async def fetch_sensor_data(sensor_type, properities = None):
     """
     Returns all the sensor data based on the specified type, and optionally, the uri (sensorID). 
 
     Parameters:
     sensor_type (string): the type of sensor (e.g wind, winchmotor, etc.).
-    sensor_uri (string): the uri of the sensor (OPTIONAL). 
+    properities (object): additional criteria to include in the query. If None, then it returns all the data for the given sensor type. 
+                          The properities must be formatted as follows:
+                            {
+                                uri: [...all uris for the given sensor type]
+                                startDate: start date of data
+                                endDate: end date of data 
+                            }
 
     Returns List: the list of all queried sensor data from the database 
     """
 
     queried_data = []
     query = {}
-    if(sensor_uri is not None): 
-        query = { "sensor_id": sensor_uri }
+    if(properities is not None): 
+        query = {"$and": [{"sensor_id": { "$in": properities.uri }}, {"timestamp": {"$gte": datetime.strptime(properities.startDate, '%Y-%m-%d'), "$lte": datetime.strptime(properities.endDate, '%Y-%m-%d') }}]}
 
     sensor_data = sensorDatabaseDictionary[sensor_type]["collection"].find(query)
     async for document in sensor_data:
