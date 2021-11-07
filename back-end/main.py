@@ -22,9 +22,9 @@ from model import (
     GPS, 
     RudderMotor, 
     Sailencoder, 
-    Waypoint
+    Waypoint,
+    Properities
 )
-
 
 origins = ['*']
 
@@ -51,7 +51,7 @@ async def get_all_model_schemas():
 # The retrieve the data from the database
 
 @app.get("/api/sensors/{sensor_type}")
-async def get_sensor_data(sensor_type: str, properities: Optional[object]):
+async def get_sensor_data(sensor_type: str, properities: Optional[Properities] = None):
     # TODO: Add the time stamp property to filter data based on a certain time frame. 
     response = await fetch_sensor_data(sensor_type, properities)
     if response:

@@ -1,0 +1,4 @@
+.sensorPage .rowC {
+    display: flex;
+    flex-wrap: wrap;
+}

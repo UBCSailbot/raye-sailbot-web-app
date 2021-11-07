@@ -9,8 +9,12 @@ If there are inconsistencies, then the front-end project will not visualize the 
 """
 
 from pydantic import BaseModel
+from datetime import datetime
 
-# TODO: Have the sensors contain a UTC time stamp to keep track of when the data was added to the database.
+class Properities(BaseModel):
+    uri: list = []
+    startDate: datetime
+    endDate: datetime
 
 class Wind(BaseModel):
     sensor_id: str

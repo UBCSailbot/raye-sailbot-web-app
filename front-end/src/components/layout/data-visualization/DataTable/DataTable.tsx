@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
 export type Table = {
-    [ID: string]: Array<string | number>
+    [ID: string]: Array<string | number> 
 };
 
 export type TableHeader = Array<string>;

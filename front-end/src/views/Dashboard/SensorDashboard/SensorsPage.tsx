@@ -2,8 +2,12 @@ import * as React from 'react';
 import { DataTable, Table, TableHeader } from '../../../components/layout/data-visualization/DataTable/DataTable';
 import { NavBar } from '../../../components/layout/navigation/NavBar/NavBar';
 import {IMessageEvent, w3cwebsocket as W3CWebSocket} from "websocket";
+import Box from '@mui/material/Box';
 import axios from 'axios';
-
+import { SelectionTable } from '../../../components/layout/data-visualization/SelectionTable/SelectionTable';
+import { GraphLineChart } from '../../../components/layout/data-visualization/Graphs/LineChart';
+import { SensorDataUtils } from '../../../utils/SensorDataUtils';
+import { DocumentTable } from '../../../components/layout/data-visualization/DataTable/DocumentTable';
 
 interface IProps {
     SERVER_NAME: string,
@@ -18,6 +22,7 @@ interface IState {
             table: Table
         }
     }
+    fetchedSensorData: []
 }
 
 export default class Sensors extends React.Component<IProps, IState> {
@@ -28,13 +33,15 @@ export default class Sensors extends React.Component<IProps, IState> {
 
         let initialState = {
             selectedTab: "wind",
-            sensorDataTable: {}
+            sensorDataTable: {},
+            fetchedSensorData: []
         }
 
         // @ts-ignore
         this.state = (window.localStorage.getItem('state')) ? JSON.parse(window.localStorage.getItem('state')) : initialState;
 
         this.ws = new W3CWebSocket(this.props.WEBSOCKET_SERVER_NAME);
+        this.fetchSensorData = this.fetchSensorData.bind(this);
     }
 
     async componentWillMount() {
@@ -112,6 +119,24 @@ export default class Sensors extends React.Component<IProps, IState> {
         }
     };
 
+    async fetchSensorData() {
+        let {
+            selectedTab
+        } = this.state;
+
+        await axios.get(this.props.SERVER_NAME + `/api/sensors/${selectedTab}`)
+            .then((res) => {
+                const fetchedData: any = res.data;
+                this.setState({
+                    ...this.state,
+                    fetchedSensorData: fetchedData 
+                });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
     componentDidUpdate() {
         const {
             sensorDataTable,
@@ -124,11 +149,12 @@ export default class Sensors extends React.Component<IProps, IState> {
     render() {
         const {
             sensorDataTable,
-            selectedTab
+            selectedTab,
+            fetchedSensorData
         } = this.state;
 
         return(
-            <div>
+            <div className="sensorPage">
                 <NavBar 
                     tabs={Object.keys(sensorDataTable).map((key) => {return key.replace("_", " ")})} 
                     currentTab={selectedTab.replace("_", " ")}
@@ -138,7 +164,28 @@ export default class Sensors extends React.Component<IProps, IState> {
                         backgroundColor: '#44A7C4',
                     }}
                 />
-                <DataTable rowHeaders={sensorDataTable[selectedTab]?.headers || []} dataTable={sensorDataTable[selectedTab]?.table || []}/>
+                <div className="dataTable">
+                    <DataTable rowHeaders={sensorDataTable[selectedTab]?.headers || []} dataTable={sensorDataTable[selectedTab]?.table || []}/>
+                </div>
+                <div className="rowC" style={{display: "flex", flexDirection: "row"}}>
+                    <Box component="span" sx={{ width: "100%", p: 1, border: '1px dashed grey' }}>
+                        <GraphLineChart data={[{name: "test", pv: 50, uv: 100}]}/>
+                    </Box>
+                    <Box component="span" sx={{ width: "120%", p: 1, border: '1px dashed grey' }}>
+                        <DocumentTable documentTable={fetchedSensorData || []}/>
+                    </Box>
+                    <Box component="span" sx={{ width: "80%", p: 1, border: '1px dashed grey' }}>
+                        <SelectionTable 
+                            onSearchClick={this.fetchSensorData}
+                            lists={
+                                {
+                                    "Sensor Type": Object.keys(sensorDataTable[selectedTab].table), 
+                                    "Columns": sensorDataTable[selectedTab].headers.filter((header: string) => {return header !== "sensor_type" && header !== "sensor_id" && header !== "timestamp"})
+                                }
+                            }
+                        />
+                    </Box>
+                </div>
             </div>
         )
     }
