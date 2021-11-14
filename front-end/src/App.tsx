@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { NavBar } from './components/layout/navigation/NavBar/NavBar';
+import { NavBar } from './components/navigation/NavBar/NavBar';
 import Sensors from './views/Dashboard/SensorDashboard/SensorsPage';
 
 const SERVER_NAME: string = "http://127.0.0.1:8000";

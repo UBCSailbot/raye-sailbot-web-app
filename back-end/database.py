@@ -88,7 +88,12 @@ async def fetch_sensor_data(sensor_type, properities = None):
     queried_data = []
     query = {}
     if(properities is not None): 
-        query = {"$and": [{"sensor_id": { "$in": properities.uri }}, {"timestamp": {"$gte": datetime.strptime(properities.startDate, '%Y-%m-%d'), "$lte": datetime.strptime(properities.endDate, '%Y-%m-%d') }}]}
+        query = {
+            "$and": [
+                {"sensor_id": { "$in": properities.uri }}, 
+                {"timestamp": {"$gte": datetime.strptime(properities.startDate, '%Y-%m-%d'), "$lte": datetime.strptime(properities.endDate, '%Y-%m-%d') }}
+            ]
+        }
 
     sensor_data = sensorDatabaseDictionary[sensor_type]["collection"].find(query)
     async for document in sensor_data:

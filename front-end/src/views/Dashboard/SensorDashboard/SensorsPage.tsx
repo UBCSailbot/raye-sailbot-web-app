@@ -1,13 +1,15 @@
 import * as React from 'react';
-import { DataTable, Table, TableHeader } from '../../../components/layout/data-visualization/DataTable/DataTable';
-import { NavBar } from '../../../components/layout/navigation/NavBar/NavBar';
+import { DataTable, Table, TableHeader } from '../../../components/data-visualization/DataTable/DataTable';
+import { NavBar } from '../../../components/navigation/NavBar/NavBar';
 import {IMessageEvent, w3cwebsocket as W3CWebSocket} from "websocket";
-import Box from '@mui/material/Box';
 import axios from 'axios';
-import { SelectionTable } from '../../../components/layout/data-visualization/SelectionTable/SelectionTable';
-import { GraphLineChart } from '../../../components/layout/data-visualization/Graphs/LineChart';
-import { SensorDataUtils } from '../../../utils/SensorDataUtils';
-import { DocumentTable } from '../../../components/layout/data-visualization/DataTable/DocumentTable';
+import { Grid } from '@mui/material';
+import Box from '@material-ui/core/Box'
+import Paper from '@mui/material/Paper';
+import { SelectionTable } from '../../../components/data-visualization/SelectionTable/SelectionTable';
+import { GraphLineChart } from '../../../components/data-visualization/Graphs/LineChart';
+import { DocumentTable } from '../../../components/data-visualization/DataTable/DocumentTable';
+import {Criteria} from "../../../components/data-visualization/SelectionTable/SelectionTable";
 
 interface IProps {
     SERVER_NAME: string,
@@ -21,31 +23,44 @@ interface IState {
             headers: TableHeader,
             table: Table
         }
-    }
+    },
+    // selectionTable: {
+    //     criteria: {
+    //         sensors: [],
+    //         columns: [],
+    //         dates: []
+    //     },
+    // }
     fetchedSensorData: []
 }
 
 export default class Sensors extends React.Component<IProps, IState> {
     ws: W3CWebSocket;
+    state: IState = {
+        selectedTab: "wind",
+        sensorDataTable: {},
+        // selectionTable: {
+        //     criteria: {
+        //         sensors: [],
+        //         columns: [],
+        //         dates: []
+        //     },
+        // }
+        fetchedSensorData: []
+    }
 
     constructor(props: IProps) {
         super(props);
-
-        let initialState = {
-            selectedTab: "wind",
-            sensorDataTable: {},
-            fetchedSensorData: []
-        }
 
         // @ts-ignore
         this.state = (window.localStorage.getItem('state')) ? JSON.parse(window.localStorage.getItem('state')) : initialState;
 
         this.ws = new W3CWebSocket(this.props.WEBSOCKET_SERVER_NAME);
         this.fetchSensorData = this.fetchSensorData.bind(this);
+        this.setCriteria = this.setCriteria.bind(this);
     }
 
     async componentWillMount() {
-
         // Load in the all the model schemas from the backend if it's not stored locally. 
         if(!window.localStorage.getItem('state')) {
             await axios.get(this.props.SERVER_NAME + "/api/models")
@@ -137,6 +152,16 @@ export default class Sensors extends React.Component<IProps, IState> {
             });
     }
 
+    setCriteria(crit: Criteria, newValue: any) {
+        // let newSelectionTable = {...this.state.selectionTable};
+        // console.log(newSelectionTable);
+        // newSelectionTable.criteria[crit] = newValue; 
+
+        // this.setState({
+        //     selectionTable: newSelectionTable
+        // })
+    }
+
     componentDidUpdate() {
         const {
             sensorDataTable,
@@ -150,7 +175,7 @@ export default class Sensors extends React.Component<IProps, IState> {
         const {
             sensorDataTable,
             selectedTab,
-            fetchedSensorData
+            fetchedSensorData,
         } = this.state;
 
         return(
@@ -164,28 +189,39 @@ export default class Sensors extends React.Component<IProps, IState> {
                         backgroundColor: '#44A7C4',
                     }}
                 />
-                <div className="dataTable">
-                    <DataTable rowHeaders={sensorDataTable[selectedTab]?.headers || []} dataTable={sensorDataTable[selectedTab]?.table || []}/>
-                </div>
-                <div className="rowC" style={{display: "flex", flexDirection: "row"}}>
-                    <Box component="span" sx={{ width: "100%", p: 1, border: '1px dashed grey' }}>
-                        <GraphLineChart data={[{name: "test", pv: 50, uv: 100}]}/>
-                    </Box>
-                    <Box component="span" sx={{ width: "120%", p: 1, border: '1px dashed grey' }}>
-                        <DocumentTable documentTable={fetchedSensorData || []}/>
-                    </Box>
-                    <Box component="span" sx={{ width: "80%", p: 1, border: '1px dashed grey' }}>
-                        <SelectionTable 
-                            onSearchClick={this.fetchSensorData}
-                            lists={
-                                {
-                                    "Sensor Type": Object.keys(sensorDataTable[selectedTab].table), 
-                                    "Columns": sensorDataTable[selectedTab].headers.filter((header: string) => {return header !== "sensor_type" && header !== "sensor_id" && header !== "timestamp"})
-                                }
-                            }
-                        />
-                    </Box>
-                </div>
+                <Box sx={{ flexGrow: 1 }}>
+                    <Grid container spacing={1}>
+                        <Grid item xs={12} md={12}>
+                            <Paper sx={{ height: "25rem", width: "100%" }}> 
+                                <DataTable rowHeaders={sensorDataTable[selectedTab]?.headers || []} dataTable={sensorDataTable[selectedTab]?.table || []}/>
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={6} md={9}>
+                            <Paper sx={{ height: "17rem", width: "100%" }}> 
+                                <DocumentTable documentTable={fetchedSensorData || []}/>
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={6} md={3}>
+                            <Paper sx={{ height: "17rem", width: "100%" }}> 
+                                <SelectionTable 
+                                    onSearchClick={this.fetchSensorData}
+                                    setCriteria={this.setCriteria}
+                                    lists={
+                                        {
+                                            "sensors": Object.keys(sensorDataTable[selectedTab].table), 
+                                            "columns": sensorDataTable[selectedTab].headers.filter((header: string) => {return header !== "sensor_type" && header !== "sensor_id" && header !== "timestamp"})
+                                        }
+                                    }
+                                />
+                            </Paper>
+                        </Grid>
+                        <Grid item xs={12} md={12}>
+                            <Paper sx={{ height: "25rem", width: "100%" }}> 
+                                <GraphLineChart data={[{name: "test", pv: 50, uv: 100}]}/>
+                            </Paper>
+                        </Grid>
+                    </Grid>
+                </Box>
             </div>
         )
     }

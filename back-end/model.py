@@ -13,6 +13,7 @@ from datetime import datetime
 
 class Properities(BaseModel):
     uri: list = []
+    columns: list = []
     startDate: datetime
     endDate: datetime
 
