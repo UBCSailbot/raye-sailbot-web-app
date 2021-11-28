@@ -11,7 +11,7 @@ type NavBarProps = {
 }
 
 export const NavBar: React.FC<NavBarProps> = ({tabs, currentTab, handleChange, tabStyle, tabsStyle}) => {
-    const [value, setValue] = React.useState(tabs.findIndex((tab) => {return tab === currentTab}));
+    const [value, setValue] = React.useState(tabs.findIndex((tab) => {return tab === currentTab}) || 0);
 
     return (
         <Tabs

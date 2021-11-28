@@ -1,23 +1,44 @@
 import React from 'react';
 import './App.css';
-import { NavBar } from './components/navigation/NavBar/NavBar';
-import Sensors from './views/Dashboard/SensorDashboard/SensorsPage';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes
+} from "react-router-dom";
+import { RouteMap } from './AppConstants';
+import { Provider as StyletronProvider } from "styletron-react";
+import { Client as Styletron } from "styletron-engine-atomic";
+import { BaseProvider, LightTheme } from "baseui";
+import { addPlugin } from './store/Plugin';
+import { connect } from 'react-redux';
+import { SensorDataList } from './features/sensor-data-list/src/SensorDataList';
 
-const SERVER_NAME: string = "http://127.0.0.1:8000";
-const WEBSOCKET_SERVER_NAME: string = 'ws://127.0.0.1:8888/';
+const engine = new Styletron();
 
-function App() {
-  return (
-    <div className="App">
-      {/* <NavBar 
-        tabs={['Sensors', 'Waypoints']} 
-        handleChange={() => {}}
-        tabsStyle={{}}
-        tabStyle={{}}
-      /> */}
-      <Sensors SERVER_NAME={SERVER_NAME} WEBSOCKET_SERVER_NAME={WEBSOCKET_SERVER_NAME}/>
-    </div>
-  );
+class App extends React.Component<typeof mapDispatchToProps> {
+  constructor(props: typeof mapDispatchToProps) {
+    super(props);
+
+    this.props.addPlugin(SensorDataList);
+  }
+
+  render() {
+    return (
+      <Router>
+        <StyletronProvider value={engine} debugAfterHydration>
+          <BaseProvider theme={LightTheme}>
+            <Routes>
+              {Object.keys(RouteMap).map((path) => <Route path={path} key={path} element={RouteMap[path]}/>)}
+            </Routes>
+          </BaseProvider>
+        </StyletronProvider>
+      </Router>
+    );
+  }
 }
 
-export default App;
+const mapDispatchToProps = {
+  addPlugin
+}
+
+export default connect(null, mapDispatchToProps)(App);
