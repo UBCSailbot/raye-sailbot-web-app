@@ -16,12 +16,14 @@ export interface ISensorDataListUIState {
 }
 
 export interface ISensorDataListStoreState {
-    allSensorData: SensorDataList, 
+    allSensorData: SensorDataList,
+    dbResults: any, 
     selectedSensor: string,
     error?: string
 }
 
 export const defaultState: ISensorDataListStoreState = {
     allSensorData: {},
+    dbResults: {},
     selectedSensor: "wind"
 }

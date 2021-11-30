@@ -2,11 +2,7 @@ import * as React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface LineChartProps {
-  data: [
-    {
-    [id: string]: string | number
-    }
-  ]
+  data: any
 }
 
 /*
@@ -21,6 +17,8 @@ interface LineChartProps {
 */
 
 export const GraphLineChart: React.FC<LineChartProps> = ({data}) => {
+    
+
     return (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
@@ -39,8 +37,8 @@ export const GraphLineChart: React.FC<LineChartProps> = ({data}) => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+            <Line type="monotone" dataKey="speed" stroke="#8884d8" activeDot={{ r: 8 }} />
+            <Line type="monotone" dataKey="wind_sensor_2" stroke="#82ca9d" activeDot={{ r: 8 }}/>
           </LineChart>
         </ResponsiveContainer>
     );

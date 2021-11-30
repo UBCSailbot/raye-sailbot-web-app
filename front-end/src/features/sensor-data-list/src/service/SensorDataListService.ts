@@ -2,6 +2,31 @@ import { eventChannel } from "@redux-saga/core";
 
 export const SensorDataListService = {
 
+    * getSensorDataFromDatabase(query: any): Generator<any, any, any> {
+        let isError = false;
+        return yield fetch(`http://localhost:8000/api/sensors`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				"Access-Control-Allow-Origin": "http://localhost:3000",
+				"Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+				"Access-Control-Allow-Headers": "*"
+			},
+			body: JSON.stringify(query)
+		})
+			.then(response => {
+				isError = response.status !== 200;
+				return response;
+			})
+			.then(response => response.json())
+			.then(result => {
+				if (isError) {
+					throw new Error(result.error);
+				}
+				return result;
+			});
+   },
+
     * getAllModels(): Generator<any, any, any> {
         let isError = false;
 

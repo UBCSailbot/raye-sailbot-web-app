@@ -1,4 +1,5 @@
 from datetime import datetime
+import dateutil.parser
 from model import (
     Wind, 
     WinchMotor, 
@@ -9,7 +10,8 @@ from model import (
     GPS, 
     RudderMotor, 
     Sailencoder, 
-    Waypoint
+    Waypoint,
+    Query
 )
 
 # MongoDB driver
@@ -66,45 +68,23 @@ sensorDatabaseDictionary = {
     }
 }
 
-# TODO: have sensor_uri be replaced by an argument "properties" which is a dictionary that contains 
-#       specific properties that you want to query from the database (e.g. time frame, uri, etc)
-async def fetch_sensor_data(sensor_type, properities = None):
-    """
-    Returns all the sensor data based on the specified type, and optionally, the uri (sensorID). 
-
-    Parameters:
-    sensor_type (string): the type of sensor (e.g wind, winchmotor, etc.).
-    properities (object): additional criteria to include in the query. If None, then it returns all the data for the given sensor type. 
-                          The properities must be formatted as follows:
-                            {
-                                uri: [...all uris for the given sensor type]
-                                startDate: start date of data
-                                endDate: end date of data 
-                            }
-
-    Returns List: the list of all queried sensor data from the database 
-    """
-
+async def fetch_sensor_data_from_db(query: Query):
     queried_data = []
-    query = {}
-    if(properities is not None): 
-        query = {
-            "$and": [
-                {"sensor_id": { "$in": properities.uri }}, 
-                {"timestamp": {"$gte": datetime.strptime(properities.startDate, '%Y-%m-%d'), "$lte": datetime.strptime(properities.endDate, '%Y-%m-%d') }}
-            ]
-        }
-
-    sensor_data = sensorDatabaseDictionary[sensor_type]["collection"].find(query)
+    sensor_data = sensorDatabaseDictionary[query.sensor_type]["collection"].find({})
     async for document in sensor_data:
-        queried_data.append(sensorDatabaseDictionary[sensor_type]["model"](**document))
+        queried_data.append(sensorDatabaseDictionary[query.sensor_type]["model"](**document))
 
-    return queried_data
+    filtered_queried_data = []
+    for data in queried_data:
+        if data.sensor_id in query.sensors and dateutil.parser.isoparse(query.dates[0]).replace(tzinfo=None) < dateutil.parser.isoparse(data.timestamp) and dateutil.parser.isoparse(data.timestamp) < dateutil.parser.isoparse(query.dates[1]).replace(tzinfo=None):
+            data_columns = {}
+            for column in query.columns:
+                data_columns[column] = data[column]
+            filtered_queried_data.append(data_columns)
+
+    return filtered_queried_data
     
-# async def fetch_one_todo(title):
-#     document = await collection.find_one({"title": title})
-#     return document 
-
+    
 async def add_sensor_data(sensor_type, sensor_data):
     """
     Adds the sensor data to the specified database collection.

@@ -10,6 +10,37 @@ export const init = new Action<ISensorDataListStoreState>(`${SensorDataListStore
         yield put(openWebSocketChannelAction.getReduxAction()());
     })
 
+export const fetchSensorDataDBAction = new Action<ISensorDataListStoreState,
+    {selectedSensor: string, query: any}
+>(`${SensorDataListStoreAlias}.FETCH_SENSOR_DATA_DATABASE`)
+    .addSaga(function * (action) { 
+        try {
+            const dbResults = yield call(SensorDataListService.getSensorDataFromDatabase, action.payload.query);
+            yield put(fetchSensorDataDBSuccessAction.getReduxAction()({selectedSensor: action.payload.selectedSensor, dbResults}));
+        } catch (e) {
+            yield put(fetchAllModelsFailedAction.getReduxAction()({error: (e as Error).message}))
+        }
+    });
+
+const fetchSensorDataDBSuccessAction = new Action<ISensorDataListStoreState, 
+    {selectedSensor: string, dbResults: any}
+    >(`${SensorDataListStoreAlias}.FETCH_SENSOR_DATA_DATABASE_SUCCESS`)
+    .addReducer((state, action) => ({
+        ...state,
+        dbResults: {
+            ...state.dbResults,
+            [action.payload.selectedSensor]: action.payload.dbResults
+        }
+    }));
+
+const fetchSensorDataDBFailedAction = new Action<ISensorDataListStoreState, 
+    {error: string}
+    >(`${SensorDataListStoreAlias}.FETCH_SENSOR_DATA_DATABASE_FAILED`)
+    .addReducer((state, action) => ({
+        ...state,
+        error: action.payload.error
+    }));
+
 const fetchAllModelsAction = new Action<ISensorDataListStoreState>(`${SensorDataListStoreAlias}.FETCH_ALL_MODELS`)
     .addSaga(function * (action) { 
         try {
@@ -35,7 +66,8 @@ const fetchAllModelsSuccessAction = new Action<ISensorDataListStoreState,
     >(`${SensorDataListStoreAlias}.FETCH_ALL_MODELS_SUCCESS`)
     .addReducer((state, action) => ({
         ...state,
-        allSensorData: action.payload.allSensorDataListBase
+        allSensorData: action.payload.allSensorDataListBase,
+        dbResults: Object.keys(action.payload.allSensorDataListBase).reduce((a,v) => ({...a, [v]: []}), {})
     }));
 
 const fetchAllModelsFailedAction = new Action<ISensorDataListStoreState, 
@@ -107,7 +139,10 @@ const SensorDataListActions: IActionList = {
     fetchSensorDataSuccessAction,
     openWebSocketChannelAction,
     clearErrorAction,
-    setSelectedSensorAction
+    setSelectedSensorAction,
+    fetchSensorDataDBAction,
+    fetchSensorDataDBSuccessAction,
+    fetchSensorDataDBFailedAction
 }
 
 export default SensorDataListActions;

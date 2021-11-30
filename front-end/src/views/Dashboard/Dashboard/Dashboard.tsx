@@ -9,9 +9,10 @@ import { connect } from 'react-redux';
 import { addPlugin } from '../../../store/Plugin';
 import { GraphLineChart } from '../../../components/data-visualization/Graphs/LineChart';
 import { DocumentTable } from '../../../components/data-visualization/DataTable/DocumentTable';
-import {Criteria} from "../../../components/data-visualization/SelectionTable/SelectionTable";
 import { NavigateFunction, useLocation, useNavigate, useParams } from "react-router";
 import { SensorDataTable, SensorDataNavigation, SensorDataSelectionTable } from '../../../features/sensor-data-list';
+import { SensorDataDocumentTable } from '../../../features/sensor-data-list/src/ui/SensorDataDocumentTable';
+import { SensorDataGraph } from '../../../features/sensor-data-list/src/ui/SensorDataGraph';
 
 
 export function withRouter( Child: any ) {
@@ -29,24 +30,6 @@ interface IState {
 }
 
 class SensorDashboardViewBase extends React.PureComponent<IProps, IState> {
-    // async fetchSensorData() {
-    //     let {
-    //         selectedTab
-    //     } = this.state;
-
-    //     await axios.get(this.props.SERVER_NAME + `/api/sensors/${selectedTab}`)
-    //         .then((res) => {
-    //             const fetchedData: any = res.data;
-    //             this.setState({
-    //                 ...this.state,
-    //                 fetchedSensorData: fetchedData 
-    //             });
-    //         })
-    //         .catch((error) => {
-    //             console.log(error);
-    //         });
-    // }
-
     render() {
         return(
             <div className="sensorPage">
@@ -60,7 +43,7 @@ class SensorDashboardViewBase extends React.PureComponent<IProps, IState> {
                         </Grid>
                         <Grid item xs={6} md={9}>
                             <Paper sx={{ height: "17rem", width: "100%" }}> 
-                                <DocumentTable documentTable={[]}/>
+                                <SensorDataDocumentTable />
                             </Paper>
                         </Grid>
                         <Grid item xs={6} md={3}>
@@ -70,7 +53,7 @@ class SensorDashboardViewBase extends React.PureComponent<IProps, IState> {
                         </Grid>
                         <Grid item xs={12} md={12}>
                             <Paper sx={{ height: "25rem", width: "100%" }}> 
-                                <GraphLineChart data={[{name: "test", pv: 50, uv: 100}]}/>
+                                <SensorDataGraph />
                             </Paper>
                         </Grid>
                     </Grid>

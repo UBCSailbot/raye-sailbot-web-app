@@ -15,18 +15,45 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
 
-export type Criteria = "columns" | "sensors" | "dates";
-
 interface SelectionTableProps {
     lists: {
         [ListName: string]: string[]
     }
-    onSearchClick: () => Promise<any> | any;
-    setCriteria: (critera: Criteria, newValue: any) => Promise<any> | any;
+    onSearchClick: (query: any) => Promise<any> | any;
+    selectedSensor: string
 }
 
-export const SelectionTable: React.FC<SelectionTableProps> = ({lists, onSearchClick, setCriteria}) => {
-    const [dateValue, setValue] = React.useState<DateRange<Date>>([null, null]);
+// Hook
+function usePrevious(value: any) {
+  const ref = React.useRef();
+  React.useEffect(() => {
+    ref.current = value;
+  }, [value]); 
+  return ref.current;
+}
+
+
+export const SelectionTable: React.FC<SelectionTableProps> = ({lists, onSearchClick, selectedSensor}) => {
+    const [selectedDates, setSelectedDates] = React.useState<DateRange<Date>>([null, null]);
+    const [selectedSensors, setSelectedSensors] = React.useState<string[]>([]);
+    const [selectedColumns, setSelectedColumns] = React.useState<string[]>([]);
+
+    const prevSelectedSensor = usePrevious(selectedSensor);
+
+    const query = {
+      "sensor_type": selectedSensor,
+      "sensors": ["wind_sensor_1", "wind_sensor_2", "wind_sensor_3"],
+      "columns": ["sensor_id", ...selectedColumns],
+      "dates": selectedDates
+    };
+
+    React.useEffect(() => {
+      if(prevSelectedSensor !== selectedSensor) {
+        setSelectedDates([null, null]);
+        setSelectedSensors([]);
+        setSelectedColumns([]);
+      }
+    });
 
     return (
       <TableContainer component={Paper} style={{height: "100%"}}>
@@ -35,30 +62,46 @@ export const SelectionTable: React.FC<SelectionTableProps> = ({lists, onSearchCl
             <TableRow>
               <TableCell colSpan={2}>
                 <Typography>
-                  {"Filter the data"}
+                  {"Query the Database"}
                 </Typography>
               </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.keys(lists).map((key: any) => (
-              <TableRow>
-                  <TableCell colSpan={2}>
-                    <Autocomplete
-                      multiple
-                      size="small"
-                      id="multiple-limit-tags"
-                      options={lists[key]}
-                      getOptionLabel={(option) => option}
-                      defaultValue={[]}
-                      onChange={(e, val) => setCriteria(key, val)}
-                      renderInput={(params) => (
-                        <TextField {...params} variant="standard" label={key} placeholder=""/>
-                      )}
-                    />
-                  </TableCell>
-              </TableRow>
-            ))}
+            <TableRow>
+                <TableCell colSpan={2}>
+                  <Autocomplete
+                    multiple
+                    size="small"
+                    id="multiple-limit-tags"
+                    options={lists["sensors"]}
+                    getOptionLabel={(option) => option}
+                    value={selectedSensors}
+                    defaultValue={[]}
+                    onChange={(e, val) => setSelectedSensors(val)}
+                    renderInput={(params) => (
+                      <TextField {...params} variant="standard" label={"sensors"} placeholder=""/>
+                    )}
+                  />
+                </TableCell>
+            </TableRow>
+            <TableRow>
+                <TableCell colSpan={2}>
+                  <Autocomplete
+                    multiple
+                    size="small"
+                    id="multiple-limit-tags"
+                    options={lists["columns"]}
+                    getOptionLabel={(option) => option}
+                    value={selectedColumns}
+                    defaultValue={[]}
+                    onChange={(e, val) => setSelectedColumns(val)}
+                    renderInput={(params) => (
+                      <TextField {...params} variant="standard" label={"columns"} placeholder=""/>
+                    )}
+                  />
+                </TableCell>
+            </TableRow>
             <TableRow>
                 <TableCell>
                     {"Date Range:"}
@@ -68,10 +111,9 @@ export const SelectionTable: React.FC<SelectionTableProps> = ({lists, onSearchCl
                       <DateRangePicker
                         startText="Check-in"
                         endText="Check-out"
-                        value={dateValue}
+                        value={selectedDates}
                         onChange={(newValue) => {
-                          setValue(newValue);
-                          setCriteria("dates", newValue)
+                          setSelectedDates(newValue);
                         }}
                         renderInput={(startProps, endProps) => (
                           <React.Fragment>
@@ -86,7 +128,7 @@ export const SelectionTable: React.FC<SelectionTableProps> = ({lists, onSearchCl
             </TableRow>
             <TableRow>
                 <TableCell align="right" colSpan={2}>
-                    <Button variant="outlined" style={{width: "100%"}} onClick={() => onSearchClick()}>Search</Button>
+                    <Button variant="outlined" style={{width: "100%"}} onClick={() => onSearchClick(query)}>Search</Button>
                 </TableCell>
             </TableRow>
           </TableBody>

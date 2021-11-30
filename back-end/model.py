@@ -11,11 +11,14 @@ If there are inconsistencies, then the front-end project will not visualize the 
 from pydantic import BaseModel
 from datetime import datetime
 
-class Properities(BaseModel):
-    uri: list = []
+class Query(BaseModel):
+    sensor_type: str
+    sensors: list = []
     columns: list = []
-    startDate: datetime
-    endDate: datetime
+    dates: list = []
+    
+    def __getitem__(self, item):
+        return getattr(self, item)
 
 class Wind(BaseModel):
     sensor_id: str
@@ -24,23 +27,35 @@ class Wind(BaseModel):
     direction: int
     timestamp: str
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
 class WinchMotor(BaseModel):
     sensor_id: str
     sensor_type: str
     angle: int
     timestamp: str
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
 class Sailencoder(BaseModel):
     sensor_id: str
     sensor_type: str
     angle: int
     timestamp: str 
+
+    def __getitem__(self, item):
+        return getattr(self, item)
     
 class RudderMotor(BaseModel):
     sensor_id: str
     sensor_type: str
     angle: float
     timestamp: str
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
 class Accelerometer(BaseModel):
     sensor_id: str
@@ -50,12 +65,18 @@ class Accelerometer(BaseModel):
     z_pos: float
     timestamp: str
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
 class BMS(BaseModel):
     sensor_id: str
     sensor_type: str
     battery_current: int
     battery_voltage: int
     timestamp: str 
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
 class GPS(BaseModel):
     sensor_id: str
@@ -68,12 +89,18 @@ class GPS(BaseModel):
     track_made_good: float
     magnetic_variation: float
 
+    def __getitem__(self, item):
+        return getattr(self, item)
+
 class Waypoint(BaseModel):
     sensor_id: str
     sensor_type: str
     latitude: float
     longitude: float
     timestamp: str
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
 class Gyroscope(BaseModel):
     sensor_id: str
@@ -82,6 +109,9 @@ class Gyroscope(BaseModel):
     y_velocity: float
     z_velocity: float
     timestamp: str
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
 class AIS(BaseModel):
     sensor_id: str
@@ -106,3 +136,6 @@ class AIS(BaseModel):
     m_timeStampValid: bool
     m_transcieverClass: int
     timestamp: str
+
+    def __getitem__(self, item):
+        return getattr(self, item)

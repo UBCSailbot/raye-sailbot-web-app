@@ -7,7 +7,7 @@ import json
 app = FastAPI()
 
 from database import (
-    fetch_sensor_data,
+    fetch_sensor_data_from_db,
     add_sensor_data,
     sensorDatabaseDictionary
 )
@@ -23,7 +23,7 @@ from model import (
     RudderMotor, 
     Sailencoder, 
     Waypoint,
-    Properities
+    Query
 )
 
 origins = ['*']
@@ -48,15 +48,14 @@ async def get_all_model_schemas():
         modelSchemas[sensor] = sensorDatabaseDictionary[sensor]["model"].schema()
     return modelSchemas 
 
-# The retrieve the data from the database
 
-@app.get("/api/sensors/{sensor_type}")
-async def get_sensor_data(sensor_type: str, properities: Optional[Properities] = None):
-    # TODO: Add the time stamp property to filter data based on a certain time frame. 
-    response = await fetch_sensor_data(sensor_type, properities)
-    if response:
+# Sends a query to the database and retrieves the corresponding information. 
+@app.post("/api/sensors")
+async def get_sensor_data(query: Query):
+    response = await fetch_sensor_data_from_db(query)
+    if len(response) >= 0:
         return response
-    raise HTTPException(404, f"There is no sensor data with this type {sensor_type}")
+    raise HTTPException(404, f"Could not fetch query")
 
 # All methods below are used to send data to the database
 

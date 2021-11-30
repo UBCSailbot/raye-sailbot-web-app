@@ -1,7 +1,7 @@
 import React from "react";
 import withStyles, { WithStylesProps} from "react-jss";
 import { getSelectors } from "./SensorDataTableUISelectors";
-import { setSelectedSensorAction } from "./../SensorDataListActions";
+import { fetchSensorDataDBAction } from "./../SensorDataListActions";
 import {connect} from "react-redux";
 import { ISensorDataListUIState } from "../SensorDataListTypes";
 import { SelectionTable } from "../../../../components/data-visualization/SelectionTable/SelectionTable";
@@ -13,21 +13,26 @@ class SensorDataSelectionTableBase extends React.PureComponent<SensorDataSelecti
     render () {
         return (
             <SelectionTable 
-                onSearchClick={() => {}}
-                setCriteria={() => {}}
+                onSearchClick={this._performQuery.bind(this)}
+                selectedSensor={this.props.selectedSensor || ""}
                 lists={
                     {
                         "sensors": Object.keys(this.props.allSensorData[this.props.selectedSensor]?.table || {}), 
-                        "columns": this.props.allSensorData[this.props.selectedSensor]?.headers.filter((header: string) => {return header !== "sensor_type" && header !== "sensor_id" && header !== "timestamp"}) || []
+                        "columns": this.props.allSensorData[this.props.selectedSensor]?.headers.filter((key) => key !== "sensor_id") || [] 
                     }
                 }
             />
         );
     }
+
+    _performQuery(query: any) {
+        this.props.fetchSensorDataDBAction({selectedSensor: this.props.selectedSensor, query: query})
+    }
 }
 
 const mapStateToProps = (state: any) => getSelectors(state)
 const mapDispatchToProps = {
+    fetchSensorDataDBAction: fetchSensorDataDBAction.getReduxAction()
 }
 
 type TActionTypes = typeof mapDispatchToProps;
