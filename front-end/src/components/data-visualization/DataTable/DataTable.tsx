@@ -46,7 +46,7 @@ export const DataTable: React.FC<DataTableProps> = ({rowHeaders, dataTable}) => 
     }
 
     return (
-        <TableContainer style={{height: "100%"}}> 
+        <TableContainer style={{height: "100%", backgroundColor: "#F7F7F7"}}> 
             <Table>
                 <TableHead>
                     <TableRow>

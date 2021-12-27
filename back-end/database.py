@@ -1,24 +1,25 @@
 from datetime import datetime
 import dateutil.parser
 from model import (
-    Wind, 
-    WinchMotor, 
-    Accelerometer, 
-    AIS, 
-    BMS, 
-    Gyroscope, 
-    GPS, 
-    RudderMotor, 
-    Sailencoder, 
+    Wind,
+    WinchMotor,
+    Accelerometer,
+    AIS,
+    BMS,
+    Gyroscope,
+    GPS,
+    RudderMotor,
+    Sailencoder,
     Waypoint,
     Query
 )
 
 # MongoDB driver
+from srv import SRV
 import motor.motor_asyncio
 
-client = motor.motor_asyncio.AsyncIOMotorClient("mongodb+srv://ubcsailbot:raye2021@sensordatacluster.sxfhu.mongodb.net/test")
-database = client.SensorData 
+client = motor.motor_asyncio.AsyncIOMotorClient(SRV)
+database = client.SensorData
 # Same thing as a table in SQL
 
 sensorDatabaseDictionary = {
@@ -83,8 +84,8 @@ async def fetch_sensor_data_from_db(query: Query):
             filtered_queried_data.append(data_columns)
 
     return filtered_queried_data
-    
-    
+
+
 async def add_sensor_data(sensor_type, sensor_data):
     """
     Adds the sensor data to the specified database collection.
@@ -93,6 +94,6 @@ async def add_sensor_data(sensor_type, sensor_data):
     sensor_type (string): the collection to add the sensor data to.
     sensor_data (json): the data containing the sensor data information.
     """
-    document = sensor_data 
+    document = sensor_data
     result = await sensorDatabaseDictionary[sensor_type]["collection"].insert_one(document)
     return result

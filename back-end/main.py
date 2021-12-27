@@ -135,10 +135,3 @@ async def post_ais_sensor_data(ais_sensor_data: AIS):
     if response:
         return response
     raise HTTPException(400, f"Something went wrong / Bad Request")
-    
-# @app.delete("/api/todo{title}/", response_model=Todo)
-# async def delete_todo(title):
-#     response = await remove_todo(title)
-#     if response:
-#         return "Successfully deleted todo item !"
-#     raise HTTPException(404, f"There is no TODO item with this title {title}")

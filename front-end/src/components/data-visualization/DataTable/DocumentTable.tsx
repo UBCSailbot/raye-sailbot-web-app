@@ -19,7 +19,7 @@ export const DocumentTable: React.FC<DocumentTableProps> = ({documentTable}) => 
     );
 
     return (
-        <TableContainer style={{height: "100%"}}>
+        <TableContainer style={{height: "100%", backgroundColor: "#F7F7F7"}}>
             <Table>
                 <TableBody>
                     {bodyData}

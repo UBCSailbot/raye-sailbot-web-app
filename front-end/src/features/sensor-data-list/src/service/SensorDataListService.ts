@@ -66,7 +66,7 @@ export const SensorDataListService = {
                 }
 
                 if (data) {
-                    return emitter({data: data});
+                    return emitter(data);
                 }
             }
 

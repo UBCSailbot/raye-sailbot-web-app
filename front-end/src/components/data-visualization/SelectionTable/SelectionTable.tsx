@@ -17,7 +17,7 @@ import { Typography } from '@mui/material';
 
 interface SelectionTableProps {
     lists: {
-        [ListName: string]: string[]
+        [ListName: string]: any[]
     }
     onSearchClick: (query: any) => Promise<any> | any;
     selectedSensor: string
@@ -39,11 +39,11 @@ export const SelectionTable: React.FC<SelectionTableProps> = ({lists, onSearchCl
     const [selectedColumns, setSelectedColumns] = React.useState<string[]>([]);
 
     const prevSelectedSensor = usePrevious(selectedSensor);
-
     const query = {
       "sensor_type": selectedSensor,
-      "sensors": ["wind_sensor_1", "wind_sensor_2", "wind_sensor_3"],
-      "columns": ["sensor_id", ...selectedColumns],
+      // "sensors": ["accelerometer"],
+      "sensors": [...selectedSensors],
+      "columns": ["sensor_id", "timestamp", ...selectedColumns],
       "dates": selectedDates
     };
 
@@ -56,17 +56,8 @@ export const SelectionTable: React.FC<SelectionTableProps> = ({lists, onSearchCl
     });
 
     return (
-      <TableContainer component={Paper} style={{height: "100%"}}>
+      <TableContainer style={{height: "100%"}}>
         <Table aria-label="collapsible table" size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell colSpan={2}>
-                <Typography>
-                  {"Query the Database"}
-                </Typography>
-              </TableCell>
-            </TableRow>
-          </TableHead>
           <TableBody>
             <TableRow>
                 <TableCell colSpan={2}>

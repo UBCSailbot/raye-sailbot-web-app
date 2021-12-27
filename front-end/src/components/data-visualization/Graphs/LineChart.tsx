@@ -1,8 +1,11 @@
+import { Typography } from '@mui/material';
 import * as React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface LineChartProps {
-  data: any
+  data: any,
+  sensorId: string,
+  sensorData: any
 }
 
 /*
@@ -16,30 +19,32 @@ interface LineChartProps {
  }
 */
 
-export const GraphLineChart: React.FC<LineChartProps> = ({data}) => {
-    
+export const GraphLineChart: React.FC<LineChartProps> = ({data, sensorId, sensorData}) => {
+    let colors = ["#26619c", "#D4AC0D", "#E74C3C", "#67C4FF", "#229954"];
 
     return (
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            width={500}
-            height={300}
-            data={data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="speed" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="wind_sensor_2" stroke="#82ca9d" activeDot={{ r: 8 }}/>
-          </LineChart>
+      <>
+        <Typography variant="overline" style={{fontSize: "12px", marginLeft: "50%"}}>
+            {sensorId}
+        </Typography>
+        <ResponsiveContainer minWidth="undefined" minHeight="undefined">
+            <LineChart
+              data={data}
+              margin={{
+                top: 5,
+                right: 30,
+                left: 20,
+                bottom: 15,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="timestamp" style={{fontSize: "12px"}}/>
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              {sensorData.map((key: any, index: number) => <Line type="monotone" dataKey={key} stroke={colors[index % 4]} activeDot={{ r: 8 }} />)}
+            </LineChart>
         </ResponsiveContainer>
+      </>
     );
 }

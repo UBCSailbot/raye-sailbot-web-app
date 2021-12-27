@@ -3,10 +3,10 @@ import withStyles, { WithStylesProps} from "react-jss";
 import { getSelectors } from "./SensorDataTableUISelectors";
 import { fetchSensorDataDBAction } from "./../SensorDataListActions";
 import {connect} from "react-redux";
-import { ISensorDataListUIState } from "../SensorDataListTypes";
+import { ISensorDataListStoreState } from "../SensorDataListTypes";
 import { SelectionTable } from "../../../../components/data-visualization/SelectionTable/SelectionTable";
 
-export interface SensorDataSelectionProps extends WithStylesProps<typeof styles>, ISensorDataListUIState, TActionTypes {
+export interface SensorDataSelectionProps extends WithStylesProps<typeof styles>, ISensorDataListStoreState, TActionTypes {
 }
 
 class SensorDataSelectionTableBase extends React.PureComponent<SensorDataSelectionProps> {
@@ -17,8 +17,8 @@ class SensorDataSelectionTableBase extends React.PureComponent<SensorDataSelecti
                 selectedSensor={this.props.selectedSensor || ""}
                 lists={
                     {
-                        "sensors": Object.keys(this.props.allSensorData[this.props.selectedSensor]?.table || {}), 
-                        "columns": this.props.allSensorData[this.props.selectedSensor]?.headers.filter((key) => key !== "sensor_id") || [] 
+                        "sensors": Object.keys(this.props.allSensorData[this.props.selectedSensor]?.table || {}),  
+                        "columns": this.props.allSensorData[this.props.selectedSensor]?.headers.filter((key) => key !== "sensor_id" && key !== "timestamp" && key !== "sensor_type") || [] 
                     }
                 }
             />

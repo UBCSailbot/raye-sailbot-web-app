@@ -16,9 +16,10 @@ class SensorDataNavigationBase extends React.PureComponent<SensorDataNavigationP
                 tabs={Object.keys(this.props.allSensorData).map((key) => key)} 
                 currentTab={this.props.selectedSensor}
                 handleChange={(tab: string) => this._setSelectedTab(tab)}
-                tabStyle={{color: 'white', fontSize: '12px', fontWeight: 'bold', maxHeight: '15px'}}
+                tabStyle={{color: '#26619c', fontSize: '12px', fontWeight: 'bold', outline: "10px"}}
                 tabsStyle={{
-                    backgroundColor: '#44A7C4',
+                    backgroundColor: 'white',
+                    width: "100%",
                 }}
             />
         );

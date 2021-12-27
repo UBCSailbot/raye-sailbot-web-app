@@ -15,15 +15,16 @@ export const NavBar: React.FC<NavBarProps> = ({tabs, currentTab, handleChange, t
 
     return (
         <Tabs
+            variant="fullWidth"
             value={value}
             onChange={(e, index) => {
                 handleChange(tabs[index]);
                 setValue(index)
             }}
-            TabIndicatorProps={{style: {background: 'white', height: "3.5px"}}}
+            TabIndicatorProps={{style: {background: '#26619c', height: "4px"}}}
             style={tabsStyle}
         >
-            {tabs.map( tabName => <Tab style={tabStyle} label={tabName} key={tabName} />)}
+            {tabs.map( tabName => <Tab style={tabStyle} label={tabName} key={tabName}/>)}
         </Tabs>
     );
 };
