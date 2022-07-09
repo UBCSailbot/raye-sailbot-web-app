@@ -9,21 +9,27 @@ export type SensorDataList = {
     }
 };
 
+export enum ILoadingState {
+    NOT_LOADING,
+    GET_COORDINATES_LOADING
+}
+
 export interface ISensorDataListUIState {
-    allSensorData: SensorDataList,
-    selectedSensor: string,
-    error?: string
+    error?: string,
+    loading: ILoadingState,
+    gpsPath: any,
+    gpsCoordinates: any
 }
 
 export interface ISensorDataListStoreState {
-    allSensorData: SensorDataList,
-    dbResults: any, 
-    selectedSensor: string,
-    error?: string
+    gpsCoordinates: any, 
+    error?: string,
+    gpsPath: any,
+    loading: ILoadingState
 }
 
 export const defaultState: ISensorDataListStoreState = {
-    allSensorData: {},
-    dbResults: {},
-    selectedSensor: "wind"
+    gpsCoordinates: {lat: 49.28, lng: -123.12},
+    gpsPath: [[49.28, -123.12]],
+    loading: ILoadingState.NOT_LOADING
 }

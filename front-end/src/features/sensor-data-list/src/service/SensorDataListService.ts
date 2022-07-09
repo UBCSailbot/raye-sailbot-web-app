@@ -1,6 +1,23 @@
 import { eventChannel } from "@redux-saga/core";
 
 export const SensorDataListService = {
+    * fetchSensorData(sensorType: string): Generator<any, any, any> {
+        let isError = false;
+        return yield fetch(`http://localhost:8000/api/${sensorType}`, {
+			method: 'GET',
+		})
+			.then(response => {
+				isError = response.status !== 200;
+				return response;
+			})
+			.then(response => response.json())
+			.then(result => {
+				if (isError) {
+					throw new Error(result.error);
+				}
+				return result;
+			});
+    },
 
     * getSensorDataFromDatabase(query: any): Generator<any, any, any> {
         let isError = false;
@@ -26,6 +43,42 @@ export const SensorDataListService = {
 				return result;
 			});
    },
+
+   * getGPSCoordinates(): Generator<any, any, any> {
+        let isError = false;
+        return yield fetch(`http://144.126.208.108:8000/gps`, {
+			method: 'GET',
+		})
+			.then(response => {
+				isError = response.status !== 200;
+				return response;
+			})
+			.then(response => response.json())
+			.then(result => {
+				if (isError) {
+					throw new Error(result.error);
+				}
+				return JSON.parse(result);
+			});
+   },
+
+    * getGPSCoordinatePath(): Generator<any, any, any> {
+        let isError = false;
+        return yield fetch(`http://144.126.208.108:8000/gps_log`, {
+			method: 'GET',
+		})
+        .then(response => {
+            isError = response.status !== 200;
+            return response;
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (isError) {
+                throw new Error(result.error);
+            }
+            return JSON.parse(result).coordinates;
+        });
+    },
 
     * getAllModels(): Generator<any, any, any> {
         let isError = false;

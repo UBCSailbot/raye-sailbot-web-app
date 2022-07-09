@@ -1,47 +1,44 @@
-import React, {useState, useRef, useEffect} from 'react';
-import MapView, { Marker, Polyline } from "react-native-maps";
+import React, { useEffect, useState } from "react";
+import {GoogleMap, useLoadScript, Marker, Polyline} from '@react-google-maps/api';
+import axios from "axios";
+import { ILoadingState } from "../../../features/sensor-data-list/src/SensorDataListTypes";
+import CircularProgress from '@mui/material/CircularProgress';
+import { Box, Typography } from "@mui/material";
 
 
-interface MapTrackerProps {
-    latitude: number,
-    longitude: number
+interface MapProps {
+    coordinates: any,
+    isLoadingGPS: ILoadingState
 }
 
-// export const MapTracker: React.FC<MapTrackerProps> = ({latitude, longitude}) => {
-//     const [region, setRegion] = useState({
-//         mapView: {
-//             latitude: latitude,
-//             longitude: longitude,
-//             latitudeDelta: 0.0,
-//             longitudeDelta: 0.0
-//         },
-//         allCoordinates: []
-//     });
+export const MapTracker: React.FC<MapProps> = ({coordinates, isLoadingGPS}) => {
+    const { isLoaded } = useLoadScript({
+        googleMapsApiKey: ""
+    })
 
-//     const _map = useRef(null);
+    if (!isLoaded || isLoadingGPS) return (
+        <Box sx={{display: "flex", justifyContent:'center', alignItems:'center', height: '100vh', marginTop: "-5rem"}}>
+            <CircularProgress size={"5rem"}/>
+            {/* <Typography sx={{fontSize: "1.5rem"}}>
+                Loading
+            </Typography> */}
+        </Box>
+    )
 
-    // useEffect(() => {
-    //     if(_map.current) {
-    //       _map.current.animateCamera(
-    //         {
-    //           center: {
-    //             latitude: latitude,
-    //             longitude: longitude
-    //           },
-    //           zoom: 15
-    //         },
-    //         5000
-    //       );
-    //     }
-    // }, []);
-    
-//     return(
-//         <MapView
-//           style={{ flex: 1 }}
-//           region={region}
-//           onRegionChangeComplete={region => setRegion(region)}
-//         >
-//             <Polyline coordinates={[]} />
-//         </MapView>
-//     )
-// }
+    const formatCoordinates = (coords: any) => {
+        return coords.map((ele: any) => Object.assign({}, {lat: ele[0], lng: ele[1]}));
+    }
+
+    let path = formatCoordinates(coordinates);
+    let marker = path.at(-1);
+
+    return (
+    <GoogleMap zoom={4.5} center={{lat: 37.28, lng: -145.12}} mapContainerStyle={{width: "100%", height: "92vh"}}>
+        <Polyline path={path}/>
+        {/* <Marker position={{lat: 49.28, lng: -123.12}}></Marker> */}
+        <Marker position={marker}></Marker>
+        {/* <Marker position={{lat: 21.31, lng: -157.8}}></Marker> */}
+        {/* <Marker position={coordinates}></Marker> */}
+    </GoogleMap>
+    );
+};

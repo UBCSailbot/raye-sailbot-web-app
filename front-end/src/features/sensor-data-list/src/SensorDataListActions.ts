@@ -1,148 +1,110 @@
-import { call, delay, put, take } from 'redux-saga/effects';
+import { call, delay, put, select, take } from 'redux-saga/effects';
 import { Action } from '../../../store/ActionTools';
 import { IActionList } from '../../../store/Plugin';
-import { ISensorDataListStoreState, STORE_ALIAS as SensorDataListStoreAlias } from './SensorDataListTypes';
+import { ILoadingState, ISensorDataListStoreState, STORE_ALIAS as SensorDataListStoreAlias } from './SensorDataListTypes';
 import { SensorDataListService } from './service/SensorDataListService';
+import { getLoading } from './SensorDataListSelectors';
 
 export const init = new Action<ISensorDataListStoreState>(`${SensorDataListStoreAlias}.INIT`)
-    .addSaga( function * () {
-        yield put(fetchAllModelsAction.getReduxAction()());
-        yield put(openWebSocketChannelAction.getReduxAction()());
+    .addSaga( function * (action) {
+        // yield put(fetchAllModelsAction.getReduxAction()());
+        yield put(pollSensorDataAction.getReduxAction()());
+        // yield put(openWebSocketChannelAction.getReduxAction()());
     })
 
-export const fetchSensorDataDBAction = new Action<ISensorDataListStoreState,
-    {selectedSensor: string, query: any}
->(`${SensorDataListStoreAlias}.FETCH_SENSOR_DATA_DATABASE`)
-    .addSaga(function * (action) { 
-        try {
-            const dbResults = yield call(SensorDataListService.getSensorDataFromDatabase, action.payload.query);
-            yield put(fetchSensorDataDBSuccessAction.getReduxAction()({selectedSensor: action.payload.selectedSensor, dbResults}));
-        } catch (e) {
-            yield put(fetchAllModelsFailedAction.getReduxAction()({error: (e as Error).message}))
-        }
-    });
-
-const fetchSensorDataDBSuccessAction = new Action<ISensorDataListStoreState, 
-    {selectedSensor: string, dbResults: any}
-    >(`${SensorDataListStoreAlias}.FETCH_SENSOR_DATA_DATABASE_SUCCESS`)
-    .addReducer((state, action) => ({
-        ...state,
-        dbResults: {
-            ...state.dbResults,
-            [action.payload.selectedSensor]: action.payload.dbResults
-        }
-    }));
-
-const fetchSensorDataDBFailedAction = new Action<ISensorDataListStoreState, 
-    {error: string}
-    >(`${SensorDataListStoreAlias}.FETCH_SENSOR_DATA_DATABASE_FAILED`)
-    .addReducer((state, action) => ({
-        ...state,
-        error: action.payload.error
-    }));
-
-const fetchAllModelsAction = new Action<ISensorDataListStoreState>(`${SensorDataListStoreAlias}.FETCH_ALL_MODELS`)
-    .addSaga(function * (action) { 
-        try {
-            const allModels = yield call(SensorDataListService.getAllModels);
-            let allSensorDataListBase = {};
-            for (const model in allModels) {
-                allSensorDataListBase = {
-                    ...allSensorDataListBase,
-                    [model]: {
-                        headers: Object.keys(allModels[model]["properties"]),
-                        table: {}
-                    }
-                }
-            } 
-            yield put(fetchAllModelsSuccessAction.getReduxAction()({allSensorDataListBase}));
-        } catch (e) {
-            yield put(fetchAllModelsFailedAction.getReduxAction()({error: (e as Error).message}))
-        }
-    });
-
-const fetchAllModelsSuccessAction = new Action<ISensorDataListStoreState, 
-    {allSensorDataListBase: any}
-    >(`${SensorDataListStoreAlias}.FETCH_ALL_MODELS_SUCCESS`)
-    .addReducer((state, action) => ({
-        ...state,
-        allSensorData: action.payload.allSensorDataListBase,
-        dbResults: Object.keys(action.payload.allSensorDataListBase).reduce((a,v) => ({...a, [v]: []}), {})
-    }));
-
-const fetchAllModelsFailedAction = new Action<ISensorDataListStoreState, 
-    {error: string}
-    >(`${SensorDataListStoreAlias}.FETCH_ALL_MODELS_FAILED`)
-    .addReducer((state, action) => ({
-        ...state,
-        error: action.payload.error
-    }));
-
-const fetchSensorDataSuccessAction = new Action<ISensorDataListStoreState,
-    {sensorData: any}
->(`${SensorDataListStoreAlias}.FETCH_SENSOR_DATA_SUCCESS`)
-    .addReducer((state, action) => ({
-        ...state,
-        allSensorData: {
-            ...state.allSensorData,
-            [action.payload.sensorData["sensor_type"]]: {
-                ...state.allSensorData[action.payload.sensorData["sensor_type"]],
-                table: {
-                    ...state.allSensorData[action.payload.sensorData["sensor_type"]].table,
-                    [action.payload.sensorData["sensor_id"]]: state.allSensorData[action.payload.sensorData["sensor_type"]].headers.map((key) => action.payload.sensorData[key]) 
-                }
-            }
-        }
-    }))
-
-const fetchSensorDataFailedAction = new Action<ISensorDataListStoreState, 
-    {error: string}
-    >(`${SensorDataListStoreAlias}.FETCH_SENSOR_DATA_FAILED`)
-    .addReducer((state, action) => ({
-        ...state,
-        error: action.payload.error
-    }));
-
-const openWebSocketChannelAction = new Action<ISensorDataListStoreState>(`${SensorDataListStoreAlias}.OPEN_WEBSOCKET`)
+const pollSensorDataAction = new Action<ISensorDataListStoreState>(`${SensorDataListStoreAlias}.POLL_SENSOR_DATA`)
     .addSaga(function * () {
-        const channel = yield call(SensorDataListService.websocketInitChannel)
         while(true) {
-            const sensorData = yield take(channel);
-            try {
-                yield put(fetchSensorDataSuccessAction.getReduxAction()({sensorData}));
-            } catch (e) {
-                yield put(fetchSensorDataFailedAction.getReduxAction()({error: (e as Error).message}))
+            const isLoading: ILoadingState = yield select(getLoading);
+            if (isLoading === ILoadingState.NOT_LOADING) {
+                // yield put(getGPSCoordinatesAction.getReduxAction()());
+                yield put(getGPSCoordinatePathAction.getReduxAction()());
             }
+            // Poll the network table every hour
+            yield delay(3600000);
         }
     });
 
-export const setSelectedSensorAction = new Action<ISensorDataListStoreState,
-    {selectedSensor: string}
-    >(`${SensorDataListStoreAlias}.SET_SELECTED_SENSOR`)
+export const getGPSCoordinatesAction = new Action<ISensorDataListStoreState>(`${SensorDataListStoreAlias}.GET_GPS_COORDINATES`)
     .addReducer((state, action) => ({
         ...state,
-        selectedSensor: action.payload.selectedSensor
+        loading: ILoadingState.GET_COORDINATES_LOADING
+    }))
+    .addSaga(function* (action) {
+        try {
+            yield delay(1000);
+            const gpsCoordinates = yield call(SensorDataListService.getGPSCoordinates);
+            yield put(getGPSCoordinatesActionSuccess.getReduxAction()({gpsCoordinates: gpsCoordinates})); 
+        } catch (e) {
+            yield put(getGPSCoordinatesActionFailed.getReduxAction()({error: (e as Error).message}))
+        }
+    })
+
+export const getGPSCoordinatesActionSuccess = new Action<ISensorDataListStoreState,
+    {gpsCoordinates: any}
+>(`${SensorDataListStoreAlias}.GET_GPS_COORDINATES_SUCCESS`)
+    .addReducer((state, action) => ({
+        ...state,
+        loading: ILoadingState.NOT_LOADING,
+        gpsCoordinates: action.payload.gpsCoordinates
     }));
 
-export const clearErrorAction = new Action<ISensorDataListStoreState>(`${SensorDataListStoreAlias}.CLEAR_ERROR`)
+
+export const getGPSCoordinatesActionFailed = new Action<ISensorDataListStoreState,
+    {error: string}
+>(`${SensorDataListStoreAlias}.GET_GPS_COORDINATES_FAILED`)
     .addReducer((state, action) => ({
         ...state,
-        error: undefined,
+        loading: ILoadingState.NOT_LOADING,
+        error: action.payload.error
     }));
+
+
+export const getGPSCoordinatePathAction = new Action<ISensorDataListStoreState>(`${SensorDataListStoreAlias}.GET_GPS_PATH`)
+    .addReducer((state, action) => ({
+        ...state,
+        loading: ILoadingState.GET_COORDINATES_LOADING
+    }))
+    .addSaga(function* (action) {
+        try {
+            yield delay(750);
+            const gpsCoordinatePath = yield call(SensorDataListService.getGPSCoordinatePath);
+            yield put(getGPSCoordinatePathActionSuccess.getReduxAction()({gpsPath: gpsCoordinatePath})); 
+        } catch (e) {
+            yield put(getGPSCoordinatePathActionFailed.getReduxAction()({error: (e as Error).message}))
+        }
+    });
+
+
+export const getGPSCoordinatePathActionSuccess = new Action<ISensorDataListStoreState,
+    {gpsPath: any}
+>(`${SensorDataListStoreAlias}.GET_GPS_PATH_SUCCESS`)
+    .addReducer((state, action) => ({
+        ...state,
+        loading: ILoadingState.NOT_LOADING,
+        gpsPath: action.payload.gpsPath
+    }));
+
+
+export const getGPSCoordinatePathActionFailed = new Action<ISensorDataListStoreState,
+    {error: string}
+>(`${SensorDataListStoreAlias}.GET_GPS_PATH_FAILED`)
+    .addReducer((state, action) => ({
+        ...state,
+        loading: ILoadingState.NOT_LOADING,
+        error: action.payload.error
+    }));
+
 
 const SensorDataListActions: IActionList = {
     init, 
-    fetchAllModelsAction,
-    fetchAllModelsSuccessAction,
-    fetchAllModelsFailedAction,
-    fetchSensorDataFailedAction,
-    fetchSensorDataSuccessAction,
-    openWebSocketChannelAction,
-    clearErrorAction,
-    setSelectedSensorAction,
-    fetchSensorDataDBAction,
-    fetchSensorDataDBSuccessAction,
-    fetchSensorDataDBFailedAction
+    pollSensorDataAction,
+    getGPSCoordinatesAction,
+    getGPSCoordinatesActionSuccess,
+    getGPSCoordinatesActionFailed,
+    getGPSCoordinatePathAction,
+    getGPSCoordinatePathActionFailed,
+    getGPSCoordinatePathActionSuccess
 }
 
 export default SensorDataListActions;

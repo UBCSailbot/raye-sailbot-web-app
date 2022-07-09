@@ -1,10 +1,10 @@
-import { getAllSensorData, getDBResults, getError, getSelectedSensor } from "../SensorDataListSelectors";
+import { getError, getGPSCoordinatePath, getGPSCoordinates, getLoading} from "../SensorDataListSelectors";
 
 export const getSelectors = (state: any) => {
     return {
-        allSensorData: getAllSensorData(state),
-        selectedSensor: getSelectedSensor(state),
-        dbResults: getDBResults(state),
-        error: getError(state)
+        error: getError(state),
+        gpsCoordinates: getGPSCoordinates(state),
+        gpsPath: getGPSCoordinatePath(state),
+        loading: getLoading(state)
     }
 }
