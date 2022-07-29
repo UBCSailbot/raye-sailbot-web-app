@@ -76,7 +76,7 @@ export const SensorDataListService = {
             if (isError) {
                 throw new Error(result.error);
             }
-            return JSON.parse(result).coordinates;
+            return result.coordinates;
         });
     },
 

@@ -13,7 +13,7 @@ interface MapProps {
 
 export const MapTracker: React.FC<MapProps> = ({coordinates, isLoadingGPS}) => {
     const { isLoaded } = useLoadScript({
-        googleMapsApiKey: ""
+        googleMapsApiKey: "AIzaSyBqZCM3oeRw9SAhv7gpHCEhZyyEWtKblSk"
     })
 
     if (!isLoaded || isLoadingGPS) return (
