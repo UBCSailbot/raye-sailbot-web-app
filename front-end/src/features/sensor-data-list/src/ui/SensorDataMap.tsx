@@ -4,7 +4,7 @@ import { getSelectors } from "./SensorDataTableUISelectors";
 import {connect} from "react-redux";
 import { ISensorDataListStoreState, ISensorDataListUIState} from "../SensorDataListTypes";
 import {MapTracker} from "../../../../components/data-visualization/MapTracker/MapTracker";
-import { Button } from "@mui/material";
+import { CoordinateTracker } from "../../../../components/data-visualization/CoordinateTracker/CoordinateTracker";
 
 export interface SensorDataMapProps extends WithStylesProps<typeof styles>, ISensorDataListUIState, TActionTypes {
 }
@@ -12,11 +12,13 @@ export interface SensorDataMapProps extends WithStylesProps<typeof styles>, ISen
 class SensorDataMapBase extends React.PureComponent<SensorDataMapProps> {
     render () {
         return (
-            <>
-                <MapTracker 
-                    coordinates={this.props.gpsPath}
-                    isLoadingGPS={this.props.loading}
-                />
+            <>  
+                <div style={{position: "relative"}}>
+                    <MapTracker 
+                        coordinates={this.props.gpsPath}
+                        isLoadingGPS={this.props.loading}
+                    />
+                </div>
             </>
         );
     }

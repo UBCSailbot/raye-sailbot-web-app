@@ -21,7 +21,9 @@ const pollSensorDataAction = new Action<ISensorDataListStoreState>(`${SensorData
                 yield put(getGPSCoordinatePathAction.getReduxAction()());
             }
             // Poll the network table every hour
-            yield delay(3600000);
+            // yield delay(3600000);
+            // Poll the network table every 10 minutes
+            yield delay(600000);
         }
     });
 

@@ -4,6 +4,7 @@ import axios from "axios";
 import { ILoadingState } from "../../../features/sensor-data-list/src/SensorDataListTypes";
 import CircularProgress from '@mui/material/CircularProgress';
 import { Box, Typography } from "@mui/material";
+import { CoordinateTracker } from "../CoordinateTracker/CoordinateTracker";
 
 
 interface MapProps {
@@ -33,7 +34,10 @@ export const MapTracker: React.FC<MapProps> = ({coordinates, isLoadingGPS}) => {
     let marker = path.at(-1);
 
     return (
-    <GoogleMap zoom={4.5} center={{lat: 37.28, lng: -145.12}} mapContainerStyle={{width: "100%", height: "92vh"}}>
+    <GoogleMap zoom={4.5} center={{lat: 37.28, lng: -145.12}} mapContainerStyle={{position: "absolute", width: "100%", height: "92vh"}}>
+        <CoordinateTracker
+            coordinates={coordinates}
+        />
         <Polyline path={path}/>
         {/* <Marker position={{lat: 49.28, lng: -123.12}}></Marker> */}
         <Marker position={marker}></Marker>
